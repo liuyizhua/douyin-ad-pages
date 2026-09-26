@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>抖音视频</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#0b0e13;color:#eef2f7;
+  font-family:system-ui,-apple-system,sans-serif}
+.fallback{display:flex;height:100%;align-items:center;justify-content:center;text-align:center}
+.box{width:min(90vw,390px)}
+.mark{width:68px;height:68px;border-radius:16px;background:#21b879;color:#07140f;
+  font-size:28px;font-weight:900;display:grid;place-items:center;margin:0 auto 22px}
+.box h2{font-size:22px;margin:0 0 10px}
+.box p{color:#919dad;font-size:13px;line-height:1.6}
+.launch{margin-top:12px;width:100%;height:46px;border:0;border-radius:6px;
+  background:#1677ff;color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+</style>
+</head>
+<body>
+<main class="fallback" id="fallback">
+  <div class="box">
+    <div class="mark">音</div>
+    <h2 id="title">抖音视频</h2>
+    <p>点击下面按钮打开抖音视频目标视频。</p>
+    <button class="launch" id="launch">打开目标视频</button>
+  </div>
+</main>
+<script>
+const entry = {
+  name: "抖音视频",
+  platform: "douyin",
+  randomOrder: false,
+  hotCold: true,
+  targetId: "7687643848843894441",
+  targetPosition: 2,
+  roomId: "",
+  gids: [
+    "7683865046547582243",
+    // "引导视频ID",
+    // "引导视频ID"
+  ]
+};
+document.querySelector('#title').textContent = entry.name || '抖音视频';
+const scheme = entry.platform === 'lite' ? 'snssdk2329' : 'snssdk1128';
+let target = '';
+if (entry.roomId) {
+  target = `${scheme}://live?room_id=${encodeURIComponent(entry.roomId)}`;
+} else {
+  const guides = (entry.gids || []).filter(Boolean);
+  let list = [...guides];
+  if (entry.randomOrder) {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+  }
+  const pos = Math.max(1, Math.min(entry.targetPosition || 1, list.length + 1));
+  list.splice(pos - 1, 0, entry.targetId);
+  const ids = [...new Set(list)];
+  // URL 固定格式（和旧版一致）：随机性由生成端保证（每次热榜视频不同+目标位置随机）
+  const hotColdParam = entry.hotCold ? '&hot=feed&cold=feed' : '';
+  target = `${scheme}://aweme/push_detail?item_id=${encodeURIComponent(ids[0] || '')}${hotColdParam}&gids=${ids.join(',')}`;
+}
+document.querySelector('#launch').onclick = () => location.href = target;
+</script>
+</body>
+</html>
